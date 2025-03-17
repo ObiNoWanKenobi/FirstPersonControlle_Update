@@ -1,0 +1,3 @@
+replace ur FirstPersonController for this in...
+
+\ArmorySDK2412\armsdk\armory\Sources\armory\trait
