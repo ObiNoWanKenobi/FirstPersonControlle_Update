@@ -36,14 +36,16 @@ class FirstPersonController extends Trait {
 
     // Sistema de estamina
     @prop public var stamina:Bool = false;
-    @prop public var staminaBase:Float = 50.0;
+    @prop public var staminaBase:Float = 40.0;
     @prop public var staRecoverPerSec:Float = 5.0;
     @prop public var staDecreasePerSec:Float = 5.0;
     @prop public var staRecoverTime:Float = 2.0;
     @prop public var staDecreasePerJump:Float = 5.0;
     @prop public var enableFatigue:Bool = false;
-    @prop public var fatigueThreshold:Float = 30.0; // Tiempo corriendo sin parar
-    @prop public var fatrecoveryThreshold:Float = 10.0; // Tiempo sin correr para salir de fatiga
+    @prop public var fatigueSpeed:Float = 0.4;  // the reduction of movement when fatigue is activated... 
+    @prop public var fatigueThreshold:Float = 30.0; // Tiempo corriendo sin parar para la activacion // Time running non-stop for activation...
+    @prop public var fatRecoveryThreshold:Float = 10.0; // Tiempo sin correr para salir de fatiga // Time without running to get rid of fatigue...
+    
 
     // Var Privadas 
     var head:CameraObject;
@@ -187,7 +189,7 @@ class FirstPersonController extends Trait {
         }
 
         // Recuperar de la fatiga después de estar quieto cierto tiempo
-        if (enableFatigue && isFatigueActive && fatigueCooldown >= fatrecoveryThreshold) {
+        if (enableFatigue && isFatigueActive && fatigueCooldown >= fatRecoveryThreshold) {
             isFatigueActive = false;
             fatigueTimer = 0.0;
         }
@@ -213,7 +215,7 @@ class FirstPersonController extends Trait {
         if (isMoving) {
             var dirN = dir.normalize();
             var baseSpeed = isRunning ? runVelocity : moveSpeed;
-            var currentSpeed = isFatigued() ? baseSpeed * 0.4 : baseSpeed;
+            var currentSpeed = isFatigued() ? baseSpeed * fatigueSpeed : baseSpeed;
             dirN.mult(currentSpeed * deltaTime);
             body.activate();
             body.setLinearVelocity(dirN.x, dirN.y, btvec.z - 1.0);
