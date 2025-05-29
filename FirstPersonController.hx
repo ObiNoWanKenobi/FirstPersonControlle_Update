@@ -214,7 +214,11 @@ class FirstPersonController extends Trait {
 
         if (isMoving) {
             var dirN = dir.normalize();
-            var baseSpeed = isRunning ? runVelocity : moveSpeed;
+            var baseSpeed = moveSpeed;
+            if (isRunning && moveForward) {
+                baseSpeed = runVelocity;
+            }
+            var currentSpeed = isFatigued() ? baseSpeed * fatigueSpeed : baseSpeed;
             var currentSpeed = isFatigued() ? baseSpeed * fatigueSpeed : baseSpeed;
             dirN.mult(currentSpeed * deltaTime);
             body.activate();
