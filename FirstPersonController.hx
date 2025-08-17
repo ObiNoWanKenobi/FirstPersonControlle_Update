@@ -36,15 +36,15 @@ class FirstPersonController extends Trait {
 
     // Sistema de estamina
     @prop public var stamina:Bool = false;
-    @prop public var staminaBase:Float = 40.0;
+    @prop public var staminaBase:Float = 75.0;
     @prop public var staRecoverPerSec:Float = 5.0;
     @prop public var staDecreasePerSec:Float = 5.0;
     @prop public var staRecoverTime:Float = 2.0;
     @prop public var staDecreasePerJump:Float = 5.0;
     @prop public var enableFatigue:Bool = false;
-    @prop public var fatigueSpeed:Float = 0.4;  // the reduction of movement when fatigue is activated... 
+    @prop public var fatigueSpeed:Float = 0.5;  // the reduction of movement when fatigue is activated... 
     @prop public var fatigueThreshold:Float = 30.0; // Tiempo corriendo sin parar para la activacion // Time running non-stop for activation...
-    @prop public var fatRecoveryThreshold:Float = 10.0; // Tiempo sin correr para salir de fatiga // Time without running to get rid of fatigue...
+    @prop public var fatRecoveryThreshold:Float = 7.5; // Tiempo sin correr/saltar para salir de fatiga // Time without running/jumping to get rid of fatigue...
     
 
     // Var Privadas 
@@ -132,18 +132,18 @@ class FirstPersonController extends Trait {
         }
         #end
 
-        if (isGrounded) {
+        // Dejo establecido el salto para tener en cuenta la (enableFatigue) si es que es false/true....
+        if (isGrounded && !isFatigued()) {
             canJump = true;
         }
-
         // Saltar con estamina
         if (enableJump && kb.started(jumpKey) && canJump) {
             var jumpPower = jumpForce;
-
+            // Disminuir el salto al 50% si la (stamina) esta por debajo o en el 20%.
             if (stamina) {
                 if (staminaValue <= 0) {
                     jumpPower = 0;
-                } else if (staminaValue <= 40) {
+                } else if (staminaValue <= staminaBase * 0.2) {
                     jumpPower *= 0.5;
                 }
 
@@ -183,12 +183,18 @@ class FirstPersonController extends Trait {
             fatigueCooldown += deltaTime;
         }
 
+        // Evitar correr y saltar al estar fatigado...
+        if (isFatigued()) {
+             isRunning = false;
+             canJump = false;
+        }
+
         // Activar fatiga después de correr continuamente durante cierto umbral
         if (enableFatigue && fatigueTimer >= fatigueThreshold) {
             isFatigueActive = true;
         }
 
-        // Recuperar de la fatiga después de estar quieto cierto tiempo
+        // Eliminar la fatiga despues de recuperarse
         if (enableFatigue && isFatigueActive && fatigueCooldown >= fatRecoveryThreshold) {
             isFatigueActive = false;
             fatigueTimer = 0.0;
