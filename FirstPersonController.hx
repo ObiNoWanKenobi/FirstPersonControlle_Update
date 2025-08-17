@@ -240,3 +240,4 @@ class FirstPersonController extends Trait {
 
 
 // Stamina and fatigue system.....
+
